@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/jeromer/syslogparser"
@@ -80,9 +81,6 @@ func init() {
 		fmt.Println(conf)
 	}
 
-}
-
-func main() {
 	//Single instance
 	Singleton()
 
@@ -91,7 +89,19 @@ func main() {
 		runtime.GOMAXPROCS(conf.GOMAXPROCS)
 	}
 
-	fmt.Println("小艾:同学们，我开工啰！\n")
+}
+
+func ts(s interface{}) string {
+
+	if s == nil {
+		return time.Now().Format(time.RFC3339)
+	}
+
+	return s.(time.Time).Local().Format(time.RFC3339)
+
+}
+
+func main() {
 
 	finish := make(chan bool)
 
@@ -100,7 +110,7 @@ func main() {
 	go func() {
 		http.ListenAndServe(":"+conf.Http_port, h1)
 	}()
-	fmt.Println("小艾:我在听:http://" + conf.Http_port)
+	fmt.Println("小艾同学们开工啰:我在听:http://" + conf.Http_port)
 
 	//udp listen server
 	channel := make(chan syslogparser.LogParts, 1)
@@ -109,12 +119,10 @@ func main() {
 	svr.ListenUDP(":" + conf.Udp_port)
 	svr.Start(channel)
 
-	for {
+	go func() {
 		logparts := <-channel
-
-		//fmt.Printf("%s %s %s %s %s\n", ts(logparts["timestamp"]), severity(logparts["severity"]), logparts["hostname"], logparts["tag"], logparts["content"])
-		fmt.Println(logparts)
-	}
+		fmt.Printf("%s %s %s %s %s\n", ts(logparts["timestamp"]), logparts["severity"], logparts["hostname"], logparts["tag"], logparts["content"])
+	}()
 
 	<-finish
 }
