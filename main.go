@@ -106,9 +106,9 @@ func main() {
 	finish := make(chan bool)
 
 	//http listen server
-	h1 := httpsvr()
+	hs := httpsvr()
 	go func() {
-		http.ListenAndServe(":"+conf.Http_port, h1)
+		http.ListenAndServe(":"+conf.Http_port, hs)
 	}()
 	fmt.Println("小艾同学们开工啰:我在听:http://" + conf.Http_port)
 
@@ -120,8 +120,10 @@ func main() {
 	svr.Start(channel)
 
 	go func() {
-		logparts := <-channel
-		fmt.Printf("%s %s %s %s %s\n", ts(logparts["timestamp"]), logparts["severity"], logparts["hostname"], logparts["tag"], logparts["content"])
+		for {
+			logparts := <-channel
+			fmt.Printf("%s %s %s %s %s\n", ts(logparts["timestamp"]), logparts["severity"], logparts["hostname"], logparts["tag"], logparts["content"])
+		}
 	}()
 
 	<-finish
