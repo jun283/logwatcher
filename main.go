@@ -121,8 +121,9 @@ func main() {
 
 	go func() {
 		for {
-			logparts := <-channel
-			fmt.Printf("%s %s %s %s %s\n", ts(logparts["timestamp"]), logparts["severity"], logparts["hostname"], logparts["tag"], logparts["content"])
+			//logparts := <-channel
+			//Logswitcher(logparts)
+			Logswitcher(<-channel)
 		}
 	}()
 
