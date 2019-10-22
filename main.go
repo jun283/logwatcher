@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"runtime"
-	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/jeromer/syslogparser"
@@ -88,16 +87,6 @@ func init() {
 	if conf.GOMAXPROCS > 0 {
 		runtime.GOMAXPROCS(conf.GOMAXPROCS)
 	}
-
-}
-
-func ts(s interface{}) string {
-
-	if s == nil {
-		return time.Now().Format(time.RFC3339)
-	}
-
-	return s.(time.Time).Local().Format(time.RFC3339)
 
 }
 
